@@ -11,8 +11,4 @@ class ActionPlan {
     this.isComplete = false,
     required this.createdAt,
   }) : id = id ?? const Uuid().v4();
-
-  void toggleCompleted() {
-    isComplete = !isComplete;
-  }
 }
