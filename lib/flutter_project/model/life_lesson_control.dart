@@ -1,47 +1,87 @@
 import 'life_lesson.dart';
+import 'action_plan.dart';
+import '../data/life_lesson_db.dart';
+import '../data/action_plan_db.dart';
 
 class LifeLessonControl {
-  final List<LifeLesson> lessons;
+  final LifeLessonDB _lessonDb = LifeLessonDB();
+  final ActionPlanDB _actionPlanDb = ActionPlanDB();
 
-  LifeLessonControl({List<LifeLesson>? lessons}) : lessons = lessons ?? [];
-  
-  List<LifeLesson> get myLesson => lessons;
+  Future<List<LifeLesson>> getLessons() async {
+    final lessons = await _lessonDb.getAllLessons();
 
-  void addLesson(LifeLesson lesson) {
-    lessons.add(lesson);
-  }
-  
+    for (final lesson in lessons) {
+      lesson.actionPlan =
+          await _actionPlanDb.getActionPlanByLesson(lesson.id);
+    }
 
-  void editLesson(LifeLesson updatedLesson) {
-  final index = lessons.indexWhere(
-    (lesson) => lesson.id == updatedLesson.id,
-  );
-
-  if (index == -1) return; 
-  lessons[index] = updatedLesson; 
-}
-
-  void deleteLesson(String id) {
-    lessons.removeWhere((value) => value.id == id);
-  }
-  int get totalLessons => lessons.length;
-
-List<LifeLesson> get favoriteLessons =>
-    lessons.where((l) => l.isFavorite == true).toList();
-
-LessonCategory? get mostFrequentCategory {
-  if (lessons.isEmpty) return null;
-
-  final Map<LessonCategory, int> count = {};
-
-  for (var lesson in lessons) {
-    count[lesson.category] = (count[lesson.category] ?? 0) + 1;
+    return lessons;
   }
 
-  return count.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-}
+  Future<LifeLesson> addLesson(LifeLesson lesson) async {
+    await _lessonDb.insertLesson(lesson);
 
-List<LifeLesson> lessonsByCategory(LessonCategory category) {
-  return lessons.where((l) => l.category == category).toList();
-}
+    if (lesson.actionPlan != null) {
+      await _actionPlanDb.insertActionPlan(
+        lesson.actionPlan!,
+      );
+    }
+
+    return lesson; 
+  }
+
+  Future<void> editLesson(LifeLesson lesson) async {
+    await _lessonDb.updateLesson(lesson);
+
+    if (lesson.actionPlan != null) {
+      await _actionPlanDb.insertActionPlan(
+        lesson.actionPlan!,
+      );
+    } else {
+      await _actionPlanDb.deleteByLessonId(lesson.id);
+    }
+  }
+
+  Future<void> deleteLesson(String id) async {
+    await _actionPlanDb.deleteByLessonId(id);
+    await _lessonDb.deleteLesson(id);
+  }
+
+  Future<void> tapActionPlan(ActionPlan plan, bool isComplete) async {
+    plan.isComplete = isComplete;
+    await _actionPlanDb.updateActionPlan(plan);
+  }
+
+  Future<int> totalLessons() async {
+    final lessons = await getLessons();
+    return lessons.length;
+  }
+
+  Future<List<LifeLesson>> favoriteLessons() async {
+    final lessons = await getLessons();
+    return lessons.where((l) => l.isFavorite == true).toList();
+  }
+
+  Future<LessonCategory?> mostFrequentCategory() async {
+    final lessons = await getLessons();
+    if (lessons.isEmpty) return null;
+
+    final Map<LessonCategory, int> count = {};
+
+    for (var lesson in lessons) {
+      count[lesson.category] =
+          (count[lesson.category] ?? 0) + 1;
+    }
+
+    return count.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+  }
+
+  Future<List<LifeLesson>> lessonsByCategory(
+    LessonCategory category,
+  ) async {
+    final lessons = await getLessons();
+    return lessons.where((l) => l.category == category).toList();
+  }
 }

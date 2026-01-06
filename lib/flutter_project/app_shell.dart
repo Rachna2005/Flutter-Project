@@ -1,10 +1,10 @@
-//lib/flutter_project/app_shell.dart
 import 'package:flutter/material.dart';
 import 'ui/home_page.dart';
 import 'ui/lesson/all_lesson_page.dart';
 import 'ui/lesson/create_lesson_page.dart';
+
 import 'model/life_lesson_control.dart';
-import 'data/sample_data.dart';
+import 'model/life_lesson.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -16,37 +16,49 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
-  final LifeLessonControl controller = lifeLesson;
+  final LifeLessonControl controller = LifeLessonControl();
 
   @override
   Widget build(BuildContext context) {
     final pages = [
       HomePage(controller: controller),
+      // FavoritePage(controller: controller),
+      Center(child: Text('favorite page')),
       AllLessonsPage(allLessons: controller),
-      CreateLifeLessonPage(
-        allLessons: controller,
-        ),
-      const Center(child: Text('Search (Later)')),
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
+      body: IndexedStack(index: _currentIndex, children: pages),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final LifeLesson? result = await Navigator.push<LifeLesson>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CreateLifeLessonPage(allLessons: controller),
+            ),
+          );
+
+          if (result != null) {
+            setState(() {
+              _currentIndex = 2; 
+            });
+          }
+        },
+        child: const Icon(Icons.add),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: const Color.fromARGB(255, 2, 32, 63),
-        unselectedItemColor: const Color.fromARGB(223, 0, 0, 0),
-        backgroundColor: const Color.fromARGB(255, 120, 177, 251), 
         onTap: (index) {
           setState(() => _currentIndex = index);
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorite'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorite',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Lessons'),
         ],
       ),
     );

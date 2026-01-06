@@ -5,12 +5,11 @@ import '../widget/action_plan_section.dart';
 import '../widget/dropdowns.dart';
 import '../widget/input_card.dart';
 import '../../model/life_lesson_control.dart';
-import 'all_lesson_page.dart';
 
 class CreateLifeLessonPage extends StatefulWidget {
   final LifeLessonControl allLessons;
   final LifeLesson? lesson;
-  
+
   const CreateLifeLessonPage({
     super.key,
     required this.allLessons,
@@ -44,7 +43,7 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
 
     if (_isEditMode) {
       final l = widget.lesson!;
-      _originalLesson = l; 
+      _originalLesson = l;
 
       _titleController.text = l.title;
       _happenedController.text = l.happened;
@@ -78,7 +77,7 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
         (o.actionPlan?.isComplete ?? false) != _isActionComplete;
   }
 
-  void _saveLesson() {
+  Future<void> _saveLesson() async {
     if (_titleController.text.trim().isEmpty ||
         _happenedController.text.trim().isEmpty ||
         _learnedController.text.trim().isEmpty) {
@@ -91,8 +90,9 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
       );
       return;
     }
+
     if (_isEditMode && !_hasChanges()) {
-      Navigator.pop(context);
+      Navigator.pop(context, null); 
       return;
     }
 
@@ -100,16 +100,17 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
     if (_hasActionPlan && _actionPlanController.text.trim().isNotEmpty) {
       actionPlan = ActionPlan(
         id: _isEditMode ? widget.lesson?.actionPlan?.id : null,
+        lessonId: _isEditMode
+            ? widget.lesson!.id
+            : '', 
         actionText: _actionPlanController.text.trim(),
-        createdAt: _isEditMode
-            ? widget.lesson?.actionPlan?.createdAt ?? DateTime.now()
-            : DateTime.now(),
         isComplete: _isEditMode ? _isActionComplete : false,
+        createdAt: DateTime.now(),
       );
     }
 
     final lesson = LifeLesson(
-      id: _isEditMode ? widget.lesson!.id : null, 
+      id: _isEditMode ? widget.lesson!.id : null,
       title: _titleController.text.trim(),
       happened: _happenedController.text.trim(),
       learned: _learnedController.text.trim(),
@@ -121,18 +122,15 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
     );
 
     if (_isEditMode) {
-      widget.allLessons.editLesson(lesson);
+      await widget.allLessons.editLesson(lesson);
     } else {
-      widget.allLessons.addLesson(lesson);
+      await widget.allLessons.addLesson(lesson);
     }
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => AllLessonsPage(allLessons: widget.allLessons),
-      ),
-      (_) => false,
-    );
+  
+    if (mounted) {
+      Navigator.pop(context, lesson);
+    }
   }
 
   Future<void> _pickLessonDate() async {
@@ -152,6 +150,7 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('CreateLifeLessonPage BUILD');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFFC7DEFC),
@@ -232,7 +231,7 @@ class _CreateLifeLessonPageState extends State<CreateLifeLessonPage> {
               isEditMode: _isEditMode,
 
               onAdd: () {
-                if (_hasActionPlan) return; 
+                if (_hasActionPlan) return;
                 setState(() {
                   _hasActionPlan = true;
                   _isActionComplete = false;
