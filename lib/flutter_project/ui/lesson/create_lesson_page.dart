@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import '../model/life_lesson.dart';
-import '../model/action_plan.dart';
-import 'widget/action_plan_section.dart';
-import 'widget/dropdowns.dart';
-import 'widget/input_card.dart';
-import '../model/life_lesson_control.dart';
+import '../../model/life_lesson.dart';
+import '../../model/action_plan.dart';
+import '../widget/action_plan_section.dart';
+import '../widget/dropdowns.dart';
+import '../widget/input_card.dart';
+import '../../model/life_lesson_control.dart';
 import 'all_lesson_page.dart';
 
 class CreateLifeLessonPage extends StatefulWidget {
   final LifeLessonControl allLessons;
   final LifeLesson? lesson;
+  
   const CreateLifeLessonPage({
     super.key,
     required this.allLessons,

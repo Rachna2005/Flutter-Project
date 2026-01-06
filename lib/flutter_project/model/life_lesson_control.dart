@@ -24,4 +24,24 @@ class LifeLessonControl {
   void deleteLesson(String id) {
     lessons.removeWhere((value) => value.id == id);
   }
+  int get totalLessons => lessons.length;
+
+List<LifeLesson> get favoriteLessons =>
+    lessons.where((l) => l.isFavorite == true).toList();
+
+LessonCategory? get mostFrequentCategory {
+  if (lessons.isEmpty) return null;
+
+  final Map<LessonCategory, int> count = {};
+
+  for (var lesson in lessons) {
+    count[lesson.category] = (count[lesson.category] ?? 0) + 1;
+  }
+
+  return count.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+}
+
+List<LifeLesson> lessonsByCategory(LessonCategory category) {
+  return lessons.where((l) => l.category == category).toList();
+}
 }

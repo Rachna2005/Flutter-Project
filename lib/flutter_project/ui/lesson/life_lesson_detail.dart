@@ -1,8 +1,9 @@
+//ui/life_lesson_detail.dart
 import 'package:flutter/material.dart';
-import '../model/life_lesson.dart';
+import '../../model/life_lesson.dart';
 import 'create_lesson_page.dart';
-import '../model/life_lesson_control.dart';
-import 'widget/lesson_helper.dart';
+import '../../model/life_lesson_control.dart';
+import '../widget/lesson_helper.dart';
 
 class LessonDetailPage extends StatefulWidget {
   final LifeLesson lesson;
