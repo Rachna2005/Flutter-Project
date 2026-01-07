@@ -52,8 +52,14 @@ class _NewLessonSectionState extends State<NewLessonSection> {
     _loadLessons();
   }
 
+  @override
+void didUpdateWidget(covariant NewLessonSection oldWidget) {
+  super.didUpdateWidget(oldWidget);
+  _loadLessons();
+}
+
   Future<void> _loadLessons() async {
-    final recent = await widget.controller.recentLessons(limit: 5);
+    final recent = await widget.controller.recentLessons(limit: 3);
     if (!mounted) return;
     setState(() {
       _lessons = recent;
@@ -96,29 +102,35 @@ class _NewLessonSectionState extends State<NewLessonSection> {
                         }
                       },
                       child: LessonCard(
-                        lesson: lesson,
-                        color: categoryCardColor(lesson.category),
-                        onFavorite: () async {
-                          await widget.controller.toggleFavorite(lesson);
-                          setState(() {});
-                        },
-                        onDelete: () async {
-                          await widget.controller.removeLesson(lesson);
-                          setState(() {
-                            _lessons.remove(lesson);
-                          });
-                        },
-                        onAction: (value) async {
-                          if (lesson.actionPlan == null || value == null) return;
-                          setState(() {
-                            lesson.actionPlan!.isComplete = value;
-                          });
-                          await widget.controller.tapActionPlan(
-                            lesson.actionPlan!,
-                            value,
-                          );
-                        },
-                      ),
+                    key: ValueKey(lesson.id),
+                    lesson: lesson,
+                    color: categoryCardColor(lesson.category),
+
+                    onFavorite: () async {
+                      setState(() {
+                        lesson.isFavorite = !(lesson.isFavorite ?? false);
+                      });
+                      await widget.controller.editLesson(lesson);
+                    },
+
+                    onDelete: () async {
+                      setState(() {
+                        _lessons.removeWhere((l) => l.id == lesson.id);
+                      });
+                      await widget.controller.deleteLesson(lesson.id);
+                    },
+
+                    onAction: (value) async {
+                      if (lesson.actionPlan == null || value == null) return;
+                      setState(() {
+                        lesson.actionPlan!.isComplete = value;
+                      });
+                      await widget.controller.tapActionPlan(
+                        lesson.actionPlan!,
+                        value,
+                      );
+                    },
+                  ),
                     ),
                   );
                 }).toList(),
