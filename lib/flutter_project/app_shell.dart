@@ -32,6 +32,7 @@ class _AppShellState extends State<AppShell> {
       body: IndexedStack(index: _currentIndex, children: pages),
 
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF9CC0F0),
         onPressed: () async {
           final LifeLesson? result = await Navigator.push<LifeLesson>(
             context,
@@ -50,6 +51,7 @@ class _AppShellState extends State<AppShell> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
+        selectedItemColor: const Color(0xFF9CC0F0),
         onTap: (index) {
           setState(() => _currentIndex = index);
         },
