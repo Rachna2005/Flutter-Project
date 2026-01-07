@@ -39,7 +39,7 @@
 //                 return LessonCard(
 //                   lesson: lesson,
 //                   color: categoryCardColor(lesson.category),
-//                   onFavorite: () {}, 
+//                   onFavorite: () {},
 //                   onDelete: () {},
 //                 );
 //               },
@@ -57,8 +57,13 @@ import 'life_lesson_detail.dart';
 
 class FavoritePage extends StatefulWidget {
   final LifeLessonControl controller;
+  final bool active;
 
-  const FavoritePage({super.key, required this.controller});
+  const FavoritePage({
+    super.key,
+    required this.controller,
+    required this.active,
+  });
 
   @override
   State<FavoritePage> createState() => _FavoritePageState();
@@ -72,6 +77,15 @@ class _FavoritePageState extends State<FavoritePage> {
   void initState() {
     super.initState();
     _loadFavorites();
+  }
+
+  @override
+  void didUpdateWidget(covariant FavoritePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.active && !oldWidget.active) {
+      _loadFavorites();
+    }
   }
 
   Future<void> _loadFavorites() async {
@@ -93,46 +107,55 @@ class _FavoritePageState extends State<FavoritePage> {
           'Favorite Lessons',
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        leading: const BackButton(),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _favorites.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No favorite lessons yet 💔',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _favorites.length,
-                  itemBuilder: (context, index) {
-                    final lesson = _favorites[index];
+          ? const Center(
+              child: Text(
+                'No favorite lessons yet 💔',
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _favorites.length,
+              itemBuilder: (context, index) {
+                final lesson = _favorites[index];
 
-                    return LessonCard(
-                      lesson: lesson,
-                      color: categoryCardColor(lesson.category),
-                      onFavorite: () async {
-                        // Toggle favorite
-                        await widget.controller.toggleFavorite(lesson);
-                        await _loadFavorites(); // refresh immediately
-                      },
-                      onDelete: () async {
-                        await widget.controller.removeLesson(lesson);
-                        await _loadFavorites(); // refresh immediately
-                      },
-                      onAction: (value) async {
-                        if (lesson.actionPlan == null || value == null) return;
-                        await widget.controller.tapActionPlan(
-                          lesson.actionPlan!,
-                          value,
-                        );
-                        await _loadFavorites(); // refresh if needed
-                      },
+                return LessonCard(
+                  key: ValueKey(lesson.id),
+                  lesson: lesson,
+                  color: categoryCardColor(lesson.category),
+
+                  onFavorite: () async {
+                    setState(() {
+                      lesson.isFavorite = !(lesson.isFavorite ?? false);
+                      _favorites.removeWhere((l) => l.id == lesson.id);
+                    });
+                    await widget.controller.editLesson(lesson);
+                  },
+
+                  onDelete: () async {
+                    setState(() {
+                      _favorites.removeWhere((l) => l.id == lesson.id);
+                    });
+                    await widget.controller.deleteLesson(lesson.id);
+                  },
+
+                  onAction: (value) async {
+                    if (lesson.actionPlan == null || value == null) return;
+                    setState(() {
+                      lesson.actionPlan!.isComplete = value;
+                    });
+                    await widget.controller.tapActionPlan(
+                      lesson.actionPlan!,
+                      value,
                     );
                   },
-                ),
+                );
+              },
+            ),
     );
   }
 }

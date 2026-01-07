@@ -24,7 +24,7 @@ class _AppShellState extends State<AppShell> {
     final pages = [
       HomePage(controller: controller),
       // FavoritePage(controller: controller),
-      FavoritePage(controller: controller),
+      FavoritePage(controller: controller, active: _currentIndex == 1,),
       AllLessonsPage(allLessons: controller),
     ];
 

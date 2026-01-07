@@ -46,6 +46,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Life Lessons')),
+      backgroundColor: const Color(0xFFC7DEFC),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : displayedLessons.isEmpty
