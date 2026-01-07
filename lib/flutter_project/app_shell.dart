@@ -5,6 +5,7 @@ import 'ui/lesson/create_lesson_page.dart';
 
 import 'model/life_lesson_control.dart';
 import 'model/life_lesson.dart';
+import 'ui/lesson/favorite_page.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -23,7 +24,7 @@ class _AppShellState extends State<AppShell> {
     final pages = [
       HomePage(controller: controller),
       // FavoritePage(controller: controller),
-      Center(child: Text('favorite page')),
+      FavoritePage(controller: controller),
       AllLessonsPage(allLessons: controller),
     ];
 

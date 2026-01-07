@@ -1,3 +1,4 @@
+// lib/flutter_project/ui/home/total_lesson_bar.dart
 import 'package:flutter/material.dart';
 
 class TotalLessonBar extends StatelessWidget {

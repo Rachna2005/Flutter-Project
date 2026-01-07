@@ -11,8 +11,7 @@ class LifeLessonControl {
     final lessons = await _lessonDb.getAllLessons();
 
     for (final lesson in lessons) {
-      lesson.actionPlan =
-          await _actionPlanDb.getActionPlanByLesson(lesson.id);
+      lesson.actionPlan = await _actionPlanDb.getActionPlanByLesson(lesson.id);
     }
 
     return lessons;
@@ -22,21 +21,17 @@ class LifeLessonControl {
     await _lessonDb.insertLesson(lesson);
 
     if (lesson.actionPlan != null) {
-      await _actionPlanDb.insertActionPlan(
-        lesson.actionPlan!,
-      );
+      await _actionPlanDb.insertActionPlan(lesson.actionPlan!);
     }
 
-    return lesson; 
+    return lesson;
   }
 
   Future<void> editLesson(LifeLesson lesson) async {
     await _lessonDb.updateLesson(lesson);
 
     if (lesson.actionPlan != null) {
-      await _actionPlanDb.insertActionPlan(
-        lesson.actionPlan!,
-      );
+      await _actionPlanDb.insertActionPlan(lesson.actionPlan!);
     } else {
       await _actionPlanDb.deleteByLessonId(lesson.id);
     }
@@ -69,19 +64,30 @@ class LifeLessonControl {
     final Map<LessonCategory, int> count = {};
 
     for (var lesson in lessons) {
-      count[lesson.category] =
-          (count[lesson.category] ?? 0) + 1;
+      count[lesson.category] = (count[lesson.category] ?? 0) + 1;
     }
 
-    return count.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
-        .key;
+    return count.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
-  Future<List<LifeLesson>> lessonsByCategory(
-    LessonCategory category,
-  ) async {
+  Future<List<LifeLesson>> lessonsByCategory(LessonCategory category) async {
     final lessons = await getLessons();
     return lessons.where((l) => l.category == category).toList();
   }
+
+  Future<List<LifeLesson>> recentLessons({int limit = 5}) async {
+  final lessons = await getLessons(); // already sorted DESC
+  return lessons.take(limit).toList(); // take newest
+  }
+
+
+    Future<void> toggleFavorite(LifeLesson lesson) async {
+    lesson.isFavorite = !(lesson.isFavorite ?? false);
+    await editLesson(lesson);
+  }
+
+  Future<void> removeLesson(LifeLesson lesson) async {
+    await deleteLesson(lesson.id);
+  }
+
 }

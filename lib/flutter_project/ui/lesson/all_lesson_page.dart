@@ -1,3 +1,4 @@
+// lib/flutter_project/ui/lesson/all_lesson_page.dart
 import 'package:flutter/material.dart';
 import '../../model/life_lesson_control.dart';
 import '../../model/life_lesson.dart';

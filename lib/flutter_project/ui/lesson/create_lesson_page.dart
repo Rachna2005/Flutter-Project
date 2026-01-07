@@ -1,3 +1,4 @@
+// lib/flutter_project/ui/lesson/create_lesson_page.dart
 import 'package:flutter/material.dart';
 import '../../model/life_lesson.dart';
 import '../../model/action_plan.dart';
@@ -9,6 +10,7 @@ import '../../model/life_lesson_control.dart';
 class CreateLifeLessonPage extends StatefulWidget {
   final LifeLessonControl allLessons;
   final LifeLesson? lesson;
+  
 
   const CreateLifeLessonPage({
     super.key,

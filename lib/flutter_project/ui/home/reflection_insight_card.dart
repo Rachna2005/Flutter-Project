@@ -1,3 +1,4 @@
+// lib/flutter_project/ui/home/reflection_insight_card.dart
 import 'package:flutter/material.dart';
 
 import '../../model/life_lesson.dart';
@@ -32,15 +33,13 @@ class ReflectionInsightCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFB6B9FF), Color(0xFF7F84FF)],
-                ),
+                color: category != null ? categoryCardColor(category!) : Colors.grey,
               ),
               child:  Center(
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color.fromARGB(255, 29, 29, 28),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
